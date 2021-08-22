@@ -1,0 +1,60 @@
+---
+- name: Imanuel Practice - UnInstall VIM and ZIP packages on remote hosts
+  package: pkg={{item}} state=absent
+  with_items:
+    - vim
+    - zip
+
+- name: Install VIM and ZIP packages on remote hosts
+  package: pkg={{item}} state=present
+  with_items:
+    - vim
+    - zip
+
+- name: Create file on remote hosts
+  copy:
+    dest: /tmp/test1 
+    owner: root
+    group: root
+    mode: "0755"
+    content: |
+       'Hello world!'
+
+- name: set conf
+  set_fact:
+    my_app_conf: "my_app.conf" 
+
+- name: Apply template file on remote hosts
+  template:
+    src: "{{ item }}.j2" 
+    dest: "/tmp/test2"
+    owner: root
+    group: root
+    mode: "0755"
+  with_items:
+    "{{ my_app_conf }}"
+
+
+- name: Imanuel Practice - Apply template on a different dest 1
+  template:
+    src: "{{ item }}.j2" 
+    dest: "/etc/{{ item }}"
+    owner: root
+    group: root
+    mode: "0755"
+  with_items:
+    "{{ my_app_conf }}"
+
+- name: Imanuel Practice - Apply template on a different dest 2
+  set_fact:
+    rendered_template: "{{ lookup('template', 'my_app.conf.j2') }}"
+
+- name: Create file on remote hosts
+  copy:
+    dest: "/tmp/{{ item }}" 
+    owner: root
+    group: root
+    mode: "0755"
+    content: "{{ rendered_template }}"
+  with_items:
+    "{{ my_app_conf }}"
